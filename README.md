@@ -66,7 +66,7 @@ You have three days to complete this assessment. We estimate it should take appr
 
 ## Questions
 
-If you have any questions or need clarification, please reach out to [contact email](mailto:dev.ritease@gmail.com).
+If you have any questions or need clarification, please reach out to [dev.ritease@gmail.com](mailto:dev.ritease@gmail.com).
 
 Good luck!
 
