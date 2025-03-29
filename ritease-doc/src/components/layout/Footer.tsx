@@ -8,7 +8,7 @@ export default function Footer() {
   
           {/* Copyright */}
           <div className="mt-8 pt-8 border-t text-center text-gray-600">
-            <p>© 2025 ritease. All rights reserved.</p>
+            <p>© 2025 lyteDoc. All rights reserved.</p>
           </div>
         </div>
       </footer>
