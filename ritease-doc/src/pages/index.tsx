@@ -1,113 +1,72 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { useState } from "react";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import Viewport from "../components/Viewport";
+import StatusBar from "../components/Statusbar";
+import { useAnnotations } from "../hooks/useAnnotations";
+import { PageDimension } from "../types/annotations";
 
 export default function Home() {
+  // State for the uploaded PDF file
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  // Status message for the status bar
+  const [status, setStatus] = useState<string>("Ready");
+  // Currently active annotation tool
+  const [activeTool, setActiveTool] = useState<string | null>(null);
+  // Color for annotations, default yellow
+  const [color, setColor] = useState<string>("#FFFF00");
+  // Dimensions of each PDF page
+  const [pageDimensions, setPageDimensions] = useState<PageDimension[]>([]);
+  // Toggle state for sidebar on small screens
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Custom hook for managing annotations and undo
+  const { annotations, setAnnotations, undo } = useAnnotations();
+
+  // Toggle sidebar visibility
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/pages/index.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    // Full-screen layout with relative positioning for z-index control
+    <div className="flex flex-col h-screen relative">
+      {/* Header with sidebar toggle and action buttons */}
+      <Header
+        pdfFile={pdfFile}
+        annotations={annotations}
+        pageDimensions={pageDimensions}
+        undo={undo}
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+      {/* Main content area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar: Overlay on small screens, static on desktop */}
+        <div
+          className={`${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full" // Slide in/out on mobile
+          } md:translate-x-0 w-64 md:w-1/5 h-full bg-gray-200 p-4 absolute left-0 z-20 transition-transform duration-300 md:static`}
+        >
+          <Sidebar activeTool={activeTool} setActiveTool={setActiveTool} color={color} setColor={setColor} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        {/* Viewport: Full width container for PDF or dropzone */}
+        <div className="w-full flex-1">
+          <Viewport
+            pdfFile={pdfFile}
+            setPdfFile={setPdfFile}
+            setStatus={setStatus}
+            activeTool={activeTool}
+            color={color}
+            annotations={annotations}
+            setAnnotations={setAnnotations}
+            pageDimensions={pageDimensions}
+            setPageDimensions={setPageDimensions}
+            undo={undo}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
+      {/* Status bar at the bottom */}
+      <StatusBar status={status} />
     </div>
   );
 }
